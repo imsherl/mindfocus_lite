@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'screens/home_screen.dart';
+import 'screens/stats_screen.dart';
+import 'screens/suggestion_screen.dart';
 
 void main() {
   runApp(const MindFocusLiteApp());
@@ -90,79 +92,6 @@ class _MainScreenState extends State<MainScreen> {
             label: 'Suggestion',
           ),
         ],
-      ),
-    );
-  }
-}
-
-// Placeholder Screen Widgets
-class StatsScreen extends StatelessWidget {
-  const StatsScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Statistics'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-      ),
-      body: const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.analytics,
-              size: 100,
-              color: Colors.green,
-            ),
-            SizedBox(height: 20),
-            Text(
-              'Focus Statistics',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            Text(
-              'Track your progress here',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class SuggestionScreen extends StatelessWidget {
-  const SuggestionScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Suggestions'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-      ),
-      body: const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.lightbulb,
-              size: 100,
-              color: Colors.orange,
-            ),
-            SizedBox(height: 20),
-            Text(
-              'Focus Suggestions',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            Text(
-              'Get personalized tips here',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
-            ),
-          ],
-        ),
       ),
     );
   }
