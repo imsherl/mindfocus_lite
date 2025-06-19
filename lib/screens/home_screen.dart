@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import '../utils/session_manager.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,11 +18,16 @@ class _HomeScreenState extends State<HomeScreen> {
   bool isWorkSession = true;
   late int remainingSeconds;
   Timer? _timer;
+  
+  // SessionManager instance
+  final SessionManager _sessionManager = SessionManager();
 
   @override
   void initState() {
     super.initState();
     _resetTimer();
+    // Add mock sessions for demo purposes
+    _sessionManager.addMockSessions();
   }
 
   @override
@@ -42,8 +48,12 @@ class _HomeScreenState extends State<HomeScreen> {
   void _toggleTimer() {
     setState(() {
       if (isRunning) {
+        // Pausing - end current session
         _timer?.cancel();
+        _sessionManager.endSession();
       } else {
+        // Starting - begin new session
+        _sessionManager.startSession(isWork: isWorkSession);
         _timer = Timer.periodic(const Duration(seconds: 1), _onTick);
       }
       isRunning = !isRunning;
@@ -59,28 +69,57 @@ class _HomeScreenState extends State<HomeScreen> {
         timer.cancel();
         isRunning = false;
         
-        // Switch session type
+        // End current session and save it
+        final completedSession = _sessionManager.endSession();
+        
+        // Switch session type for next session
         isWorkSession = !isWorkSession;
         remainingSeconds = (isWorkSession ? workDuration : breakDuration) * 60;
         
         // Show completion dialog
-        _showSessionCompleteDialog();
+        _showSessionCompleteDialog(completedSession != null);
       }
     });
   }
 
-  void _showSessionCompleteDialog() {
+  void _showSessionCompleteDialog(bool sessionSaved) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(isWorkSession 
           ? 'Break Time!' 
-          : 'Break Complete!'),
-        content: Text(isWorkSession
-          ? 'Great work! Take a $breakDuration minute break.'
-          : 'Ready to focus? Starting $workDuration minute work session.'),
+          : 'Work Session Complete!'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(isWorkSession
+              ? 'Great work! Take a $breakDuration minute break.'
+              : 'Break complete! Ready for a $workDuration minute work session?'),
+            if (sessionSaved && !isWorkSession) ...[
+              const SizedBox(height: 10),
+              const Icon(
+                Icons.check_circle,
+                color: Colors.green,
+                size: 24,
+              ),
+              const Text(
+                'Session saved!',
+                style: TextStyle(
+                  color: Colors.green,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ],
+        ),
         actions: [
           TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('Later'),
+          ),
+          ElevatedButton(
             onPressed: () {
               Navigator.of(context).pop();
               _toggleTimer(); // Auto-start next session
@@ -110,7 +149,13 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: _resetTimer,
+            onPressed: () {
+              // End any active session before resetting
+              if (_sessionManager.hasActiveSession) {
+                _sessionManager.endSession();
+              }
+              _resetTimer();
+            },
             tooltip: 'Reset Timer',
           ),
         ],
@@ -124,7 +169,25 @@ class _HomeScreenState extends State<HomeScreen> {
               isWorkSession ? 'Work Session' : 'Break Time',
               style: Theme.of(context).textTheme.headlineSmall,
             ),
-            const SizedBox(height: 40),
+            const SizedBox(height: 20),
+            
+            // Session tracking status
+            if (_sessionManager.hasActiveSession)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Text(
+                  '⏱️ Session in progress',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            const SizedBox(height: 20),
             
             // Timer display
             Stack(
@@ -138,7 +201,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     strokeWidth: 8,
                     backgroundColor: Colors.grey[300],
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      isWorkSession ? Colors.blue : Colors.green,
+                      isWorkSession 
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.secondary,
                     ),
                   ),
                 ),

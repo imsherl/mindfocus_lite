@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/session_model.dart';
+import '../utils/session_manager.dart';
 
 class StatsScreen extends StatelessWidget {
   const StatsScreen({super.key});
@@ -18,10 +19,13 @@ class StatsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Get data from FocusSession model
-    final totalFocusTime = FocusSession.getTotalFocusTimeToday();
-    final completedSessions = FocusSession.getCompletedSessionsToday();
-    final allSessions = FocusSession.getMockSessions();
+    // Get SessionManager instance
+    final sessionManager = SessionManager();
+    
+    // Get data from SessionManager instead of static methods
+    final totalFocusTime = sessionManager.getTotalFocusTimeToday();
+    final completedSessions = sessionManager.getCompletedSessionsToday();
+    final allSessions = sessionManager.getTodaySessions();
     
     // Check if there are any sessions for fallback
     final hasData = allSessions.isNotEmpty;
@@ -86,6 +90,26 @@ class StatsScreen extends StatelessWidget {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
+                
+                const SizedBox(height: 40),
+                
+                // Active session indicator
+                if (sessionManager.hasActiveSession) ...[
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      '🏃‍♂️ Session in progress',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
               ],
             )
           : Column(
