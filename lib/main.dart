@@ -3,6 +3,7 @@ import 'screens/home_screen.dart';
 import 'screens/stats_screen.dart';
 import 'screens/suggestion_screen.dart';
 import 'screens/breathing_screen.dart';
+import 'utils/theme.dart';
 
 void main() {
   runApp(const MindFocusLiteApp());
@@ -15,10 +16,7 @@ class MindFocusLiteApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'MindFocus Lite',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
-      ),
+      theme: AppTheme.lightTheme,
       initialRoute: '/home',
       routes: {
         '/home': (context) => const MainScreen(initialIndex: 0),
