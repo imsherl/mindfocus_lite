@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'screens/home_screen.dart';
 import 'screens/stats_screen.dart';
 import 'screens/suggestion_screen.dart';
+import 'screens/breathing_screen.dart';
 
 void main() {
   runApp(const MindFocusLiteApp());
@@ -23,6 +24,7 @@ class MindFocusLiteApp extends StatelessWidget {
         '/home': (context) => const MainScreen(initialIndex: 0),
         '/stats': (context) => const MainScreen(initialIndex: 1),
         '/suggestion': (context) => const MainScreen(initialIndex: 2),
+        '/breathing': (context) => const MainScreen(initialIndex: 3),
       },
     );
   }
@@ -46,10 +48,12 @@ class _MainScreenState extends State<MainScreen> {
     _currentIndex = widget.initialIndex;
   }
 
+  // Use IndexedStack to maintain state across navigation
   final List<Widget> _screens = [
     const HomeScreen(),
     const StatsScreen(),
     const SuggestionScreen(),
+    const BreathingScreen(),
   ];
 
   void _onBottomNavTap(int index) {
@@ -68,14 +72,21 @@ class _MainScreenState extends State<MainScreen> {
       case 2:
         Navigator.pushReplacementNamed(context, '/suggestion');
         break;
+      case 3:
+        Navigator.pushReplacementNamed(context, '/breathing');
+        break;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_currentIndex],
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _screens,
+      ),
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
         currentIndex: _currentIndex,
         onTap: _onBottomNavTap,
         items: const [
@@ -84,12 +95,16 @@ class _MainScreenState extends State<MainScreen> {
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.analytics),
+            icon: Icon(Icons.bar_chart),
             label: 'Stats',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.lightbulb),
             label: 'Suggestion',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.air),
+            label: 'Breathing',
           ),
         ],
       ),
